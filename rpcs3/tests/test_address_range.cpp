@@ -161,6 +161,12 @@ namespace utils
 		address_range32 r6 = address_range32::start_length(0x3000, 0x1000); // 0x3000-0x3FFF
 		EXPECT_FALSE(r1.touches(r6));
 		EXPECT_FALSE(r6.touches(r1));
+
+		// The unsigned address-space endpoints are not adjacent in a linear range.
+		address_range32 high = address_range32::start_end(0xFFFFF000, 0xFFFFFFFF);
+		address_range32 low = address_range32::start_end(0x00000000, 0x00000FFF);
+		EXPECT_FALSE(high.touches(low));
+		EXPECT_FALSE(low.touches(high));
 	}
 
 	TEST(AddressRange, Distance)
@@ -418,6 +424,10 @@ namespace utils
 		EXPECT_TRUE(vec.contains(address_range32::start_length(0x1000, 0x1000))); // 0x1000-0x1FFF
 		EXPECT_TRUE(vec.contains(address_range32::start_length(0x3000, 0x1000))); // 0x3000-0x3FFF
 		EXPECT_FALSE(vec.contains(address_range32::start_length(0x1500, 0x1000))); // 0x1500-0x24FF
+
+		// Strict subranges are contained; strict superranges are not.
+		EXPECT_TRUE(vec.contains(address_range32::start_length(0x1200, 0x100))); // 0x1200-0x12FF
+		EXPECT_FALSE(vec.contains(address_range32::start_length(0x0800, 0x2000))); // 0x0800-0x27FF
 
 		// Test overlaps with another vector
 		address_range_vector32 vec2;

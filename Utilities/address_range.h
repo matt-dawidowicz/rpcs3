@@ -139,7 +139,9 @@ namespace utils
 		{
 			AUDIT(valid() && other.valid());
 			// returns true if there is overlap, or if sections are side-by-side
-			return overlaps(other) || other.start == next_address() || other.end == prev_address();
+			return overlaps(other) ||
+				(end != umax && other.start == end + 1) ||
+				(start != 0 && other.end == start - 1);
 		}
 
 		// Utilities
@@ -532,7 +534,7 @@ namespace utils
 		{
 			return std::any_of(this->begin(), this->end(), [&range](const address_range<T>& cur)
 			{
-				return cur.valid() && cur.inside(range);
+				return cur.valid() && range.inside(cur);
 			});
 		}
 
